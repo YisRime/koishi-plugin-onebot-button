@@ -1,4 +1,4 @@
-import { Context } from 'koishi'
+import { Context, Schema } from 'koishi'
 import {} from 'koishi-plugin-adapter-onebot'
 import { parseButtonInput, sendButton, sendProtobufElements } from './button'
 import { ProtobufEncoder } from './protobuf'
@@ -18,6 +18,8 @@ export const usage = `
   <p>🐛 遇到问题？请通过 <strong>Issues</strong> 提交反馈，或加入 QQ 群 <a href="https://qm.qq.com/q/PdLMx9Jowq" style="color:#e0574a;text-decoration:none;"><strong>855571375</strong></a> 进行交流</p>
 </div>
 `
+export interface Config {}
+export const Config: Schema<Config> = Schema.object({});
 
 /**
  * 主插件函数，注册命令

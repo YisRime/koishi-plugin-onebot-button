@@ -1,6 +1,6 @@
 import { Context } from 'koishi'
 import {} from 'koishi-plugin-adapter-onebot'
-import { parseButtonInput, sendButton } from './button'
+import { parseButtonInput, sendButton, sendProtobufElements } from './button'
 import { ProtobufEncoder } from './protobuf'
 
 export const name = 'onebot-button'
@@ -36,5 +36,21 @@ export function apply(ctx: Context) {
       const buttonsInfo = parseButtonInput(input)
       if (typeof buttonsInfo === 'string') return buttonsInfo
       await sendButton(session, buttonsInfo, new ProtobufEncoder(), options.style)
+    })
+
+  ctx.command('pb <elements:text>', '发送 protobuf 元素', { authority: 2 })
+    .usage('pb [JSON] // 直接发送 protobuf 元素数据')
+    .action(async ({ session }, elements) => {
+      // 平台检查
+      if (session.bot.platform !== 'onebot') return;
+      // 输入验证
+      if (!elements?.trim()) return '请提供元素数据'
+      try {
+        const elementsData = JSON.parse(elements)
+        if (!Array.isArray(elementsData)) return '元素数据必须是数组格式'
+        await sendProtobufElements(session, elementsData, new ProtobufEncoder())
+      } catch (error) {
+        return `JSON 解析错误: ${error.message}`
+      }
     })
 }

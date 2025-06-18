@@ -130,3 +130,25 @@ function getButtonStyle(buttonStyle: string, isLink: boolean): number {
     default: return 1 // 默认加深
   }
 }
+
+/**
+ * 直接发送 protobuf 元素数据
+ */
+export async function sendProtobufElements(session: Session, elementsData: any[], encoder: ProtobufEncoder): Promise<void> {
+  const packet = {
+    1: { [session.guildId ? '2' : '1']: { 1: parseInt(session.guildId || session.userId || '0') } },
+    2: { 1: 1, 2: 0, 3: 0 },
+    3: { 1: { 2: elementsData } },
+    4: Math.floor(Math.random() * 0xFFFFFFFF),
+    5: Math.floor(Math.random() * 0xFFFFFFFF)
+  }
+  // 编码并发送
+  const encodedData = encoder.encode(processJson(packet))
+  const hexString = Array.from(encodedData).map(b => b.toString(16).padStart(2, '0')).join('')
+  try {
+    await session.onebot._request('send_packet', {
+      cmd: 'MessageSvc.PbSendMsg',
+      data: hexString
+    })
+  } catch (error) {}
+}
